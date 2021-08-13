@@ -13,7 +13,6 @@ firebase.initializeApp({
 });
 
 var db = firebase.database();
-
 var port = process.env.PORT || 3000;
 const app = express();
 app.use(bodyParser.json());
@@ -25,7 +24,6 @@ app.get('/books',  function (req, res)  {
 	res.setHeader('Content-Type', 'application/json');
 
 	var booksReference = db.ref("books");
-
 	//Attach an asynchronous callback to read the data
 	booksReference.on("value", 
 				function(snapshot) {					
@@ -34,9 +32,14 @@ app.get('/books',  function (req, res)  {
 					}, 
 				function (errorObject) {
 					res.send("The read failed: " + errorObject.code);
-				});
+
   
 });
+
+
+});  
+
+
 
 app.post('/plus',  function (req, res)  {  
 	res.setHeader('Content-Type', 'application/json');
@@ -48,9 +51,27 @@ app.post('/plus',  function (req, res)  {
 
 
 });
+app.post('/rectangle',  function (req, res)  {  
+	res.setHeader('Content-Type', 'application/json');
 
+	var width = req.body.width;
+	var long = req.body.long;
+
+	res.send('{ "area": '+ (width*long)+ '}');
+
+
+});
+app.post('/circle',  function (req, res)  {  
+	res.setHeader('Content-Type', 'application/json');
+
+	var radius = req.body.radius;
+
+	res.send('{ "area": '+ (radius*radius*3.14)+ '}');
+
+
+});
 app.get('/books/:bookid',  function (req, res)  {  
-	
+
 	res.setHeader('Content-Type', 'application/json');
 		var bookid = Number(req.params.bookid);
 
@@ -67,6 +88,23 @@ app.get('/books/:bookid',  function (req, res)  {
 					});
   
 });
+app.get('/student/:studentId',  function (req, res)  {  
+
+	res.setHeader('Content-Type', 'application/json');
+		var studentId = req.params.studentId;
+
+		var booksReference = db.ref("students");
+
+		//Attach an asynchronous callback to read the data
+		booksReference.orderByChild("studentId").equalTo(studentId).on("child_added", 
+					function(snapshot) {					
+						res.json(snapshot.val());
+						booksReference.off("value");
+						}, 
+					function (errorObject) {
+						res.send("The read failed: " + errorObject.code);
+					});
+});					
 
 
 app.get('/topsellers',  function (req, res)  {  
